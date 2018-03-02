@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Giphy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <!-- <style>
+        * {
+            text-align: center;
+        }
+
+        .container {
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        body {
+            background-image: black;
+            /* url("https://i2.wp.com/www.stagecraftsllc.com/wp-content/uploads/2016/12/black-gradient-background.jpg") */
+        }
+
+        .jumbotron {
+            background-image: 
+            /* url("https://media.giphy.com/media/kEfkVJxXWily/source.gif"); */
+            color: black;
+        }
+
+        img {
+            width: 300px;
+            border-radius: 30px;
+            margin: 15px;
+            height: 300px;
+            box-shadow: 10px 10px 5px white;
+        }
+
+        button {
+            margin: 5px 5px 10px 5px;
+            border-radius: 10px;
+        }
+
+        #gif {
+            display: inline-block;
+        }
+
+        p {
+            margin-bottom: 5px;
+            margin-top: 20px;
+            color: white;
+        }
+    </style> -->
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="jumbotron">
+                <h1>Search for a gif!!!!</h1>
+    
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <input type="text" placeholder="search for a gif">
+                <button id="search" class="btn-danger">Search</button>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" id="buttons-row"></div>
+        </div>
+
+
+        <div class="row gif-area">
+
+        </div>
+
+    </div>
+
+    <script>
+        var gifs = ["baseball", "hockey","snowboarding","fortnite","concerts"]
+        var query
+
+        function renderGifs(arr) {
+            for (let i = 0; i < arr.length; i++) {
+                var button = $("<button class='new-button btn-success'>").text(arr[i])
+                $("#buttons-row").append(button)
+            }
+        }
+        renderGifs(gifs)
+        $("#search").click(function () {
+            $(".jumbotron").hide();
+            var userInput = $("input").val();
+            if (userInput === "") {
+                $(this).attribute("disabled", true)
+            }
+            gifs.push(userInput);
+            $(".gif-area").html('');
+            $("#buttons-row").empty()
+            renderGifs(gifs)
+            displayGifs(userInput)
+            $("input").val('')
+        })
+        function displayGifs(query) {
+            $.ajax({
+                method: "GET",
+                url: "https://api.giphy.com/v1/gifs/search?q=" + query + "&limit=9&rating=pg&api_key=yMJzx4OjRJRiAZ8jhPGnXjIhmkELYUmH"
+            }).done(function (data) {
+                console.log(data)
+                for (let i = 0; i < data.data.length; i++) {
+                    var newElement = $('<div id="gif">').append(`                      
+                         <img class="still-gif" src="${data.data[i].images.original_still.url}">       
+                         `)
+                    $(".gif-area").append(newElement)
+                }
+
+            })
+        }
+        $(document).on('click', '.still-gif', function () {
+            var src = $(this).attr("src");
+            console.log(src)
+            var splitString = src.split("/giphy");
+            console.log(splitString)
+            if (splitString[1] === "_s.gif") {
+                splitString[1] = ".gif";
+                var newURL = splitString.join('/giphy');
+                console.log(newURL)
+                $(this).attr("src", newURL)
+            }
+            else {
+                splitString[1] = "_s.gif";
+                var nextURL = splitString.join('/giphy');
+                console.log(nextURL)
+                $(this).attr("src", nextURL)
+            }
+        });
+        $(document).on("click", ".new-button", function () {
+            $(".jumbotron").hide();
+            query = $(this).html();
+            $(".gif-area").html('');
+            displayGifs(query);
+        })
+    </script>
+</body>
+
+</html>
